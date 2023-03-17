@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <title>Gerador de Senhas</title>
+</head>
+
+<body>
+  <main>
+    <section class="hero">
+      <h1 class="title">Gerador de senhas</h1>
+      <p class="sub-title">Utilize o nosso gerador online para criar uma senha forte e segura</p>
+    </section>
+    <section class="box">
+      <div class="password">
+        <div class="text">
+          <input type="text" name="password" id="password">
+        </div>
+        <div class="actions">
+          <button id="copy-1">
+            <img src="./img/copy.svg" width="42px" />
+          </button>
+          <button id="refresh">
+            <img src="./img/refresh.svg" width="42px" />
+          </button>
+        </div>
+      </div>
+      <div class="security-indicator">
+        <div id="security-indicator-bar" class="bar"></div>
+      </div>
+    </section>
+    <section class="box customize">
+      <h3 class="title">Personalizar</h3>
+
+      <div class="actions">
+        <p>Tamanho: <span id="password-length-text">16</span></p>
+        <div class="password-length">
+          <input type="range" class="slider" name="password-lenght" id="password-lenght" value="16" min="4" max="64">
+        </div>
+        <div class="config">
+          <label class="checkbox-container">
+            <span class="text">Maiúsculas</span>
+            <input type="checkbox" id="uppercase-check" checked />
+            <span class="checkmark"></span>
+          </label>
+          <label class="checkbox-container">
+            <span class="text">Numeros</span>
+            <input type="checkbox" id="number-check" checked />
+            <span class="checkmark"></span>
+          </label>
+          <label class="checkbox-container">
+            <span class="text">Simbolos</span>
+            <input type="checkbox" id="symbol-check" checked />
+            <span class="checkmark"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+    <div class="submit">
+      <button id="copy-2">Copiar Senha </button>
+    </div>
+  </main>
+  <script>
+    let passwordLength = 16
+    const inputPassword = document.querySelector("#password")
+    const upperCaseCheckEl = document.querySelector("#uppercase-check")
+    const numberCheckEl = document.querySelector("#number-check")
+    const symbolCheckEl = document.querySelector("#symbol-check")
+    const securityIndicatorBarEl = document.querySelector("#security-indicator-bar")
+
+    function generatePassword() {
+      let chars = 'abcdefghijklmnopqrstuvwxyz'
+
+      const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+      const numberChars = '0123456789'
+      const symbolChars = '!?@&*()[]'
+
+      if (upperCaseCheckEl.checked) {
+        chars += uppercaseChars
+      }
+      if (numberCheckEl.checked) {
+        chars += numberChars
+      }
+      if (symbolCheckEl.checked) {
+        chars += symbolChars
+      }
+
+      let password = ""
+
+      for (let i = 0; i < passwordLength; i++) {
+        const randomNumber = Math.floor(Math.random() * chars.length)
+        password += chars.substring(randomNumber, randomNumber + 1)
+      }
+
+      inputPassword.value = password
+      qualityCalculate()
+      calculateFontSize()
+    }
+
+    function qualityCalculate() {
+      const percent = Math.round(
+        (passwordLength / 64) * 15 +
+        (upperCaseCheckEl.checked ? 25 : 0) +
+        (numberCheckEl.checked ? 25 : 0) +
+        (symbolCheckEl.checked ? 35 : 0)
+      )
+
+      securityIndicatorBarEl.style.width = `${percent}%`
+      if (percent > 69) {
+        securityIndicatorBarEl.classList.remove('critical')
+        securityIndicatorBarEl.classList.remove('warning')
+        securityIndicatorBarEl.classList.add('safe')
+      } else if (percent > 30) {
+        securityIndicatorBarEl.classList.remove('critical')
+        securityIndicatorBarEl.classList.add('warning')
+        securityIndicatorBarEl.classList.remove('safe')
+      } else {
+        securityIndicatorBarEl.classList.add('critical')
+        securityIndicatorBarEl.classList.remove('warning')
+        securityIndicatorBarEl.classList.remove('safe')
+      }
+
+      if (percent >= 100) {
+        securityIndicatorBarEl.classList.add('completed')
+      } else {
+        securityIndicatorBarEl.classList.remove('completed')
+      }
+    }
+
+    function calculateFontSize() {
+      if (passwordLength > 45) {
+        inputPassword.classList.remove('font-sm')
+        inputPassword.classList.remove('font-xs')
+        inputPassword.classList.add('font-xxs')
+      } else if (passwordLength > 32) {
+        inputPassword.classList.remove('font-sm')
+        inputPassword.classList.remove('font-xxs')
+        inputPassword.classList.add('font-xs')
+      } else if (passwordLength > 22) {
+        inputPassword.classList.remove('font-xxs')
+        inputPassword.classList.remove('font-xs')
+        inputPassword.classList.add('font-sm')
+      } else {
+        inputPassword.classList.remove('font-sm')
+        inputPassword.classList.remove('font-xs')
+        inputPassword.classList.remove('font-xxs')
+      }
+    }
+
+    function copy() {
+      navigator.clipboard.writeText(inputPassword.value)
+    }
+
+    const passwordElement = document.querySelector('#password-lenght')
+    passwordElement.addEventListener("input", function () {
+      passwordLength = passwordElement.value
+      document.querySelector('#password-length-text').innerText = passwordLength
+      generatePassword()
+    })
+    upperCaseCheckEl.addEventListener('click', generatePassword)
+    numberCheckEl.addEventListener('click', generatePassword)
+    symbolCheckEl.addEventListener('click', generatePassword)
+
+    document.querySelector("#copy-1").addEventListener('click', copy)
+    document.querySelector("#copy-2").addEventListener('click', copy)
+    generatePassword()
+  </script>
+</body>
+
+</html>
